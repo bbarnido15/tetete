@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap">
+    <style>
+        /* Your existing styles here */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f1f1f1;
+        }
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background-color: #fff;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #333;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        .sidebar a img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .sidebar a:hover {
+            background-color: #f1f1f1;
+        }
+        .sidebar a.active {
+            background-color: #ececec;
+        }
+        .sidebar .search {
+            margin-bottom: 20px;
+        }
+        .sidebar .search input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        .search-results {
+            display: none;
+            margin-top: 10px;
+            padding-left: 0;
+            list-style-type: none;
+        }
+        .search-results li {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .search-results li img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .search-results li:hover {
+            background-color: #ececec;
+        }
+        /* Chat Window Styling */
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+        }
+        .chat-header {
+            background-color: #f9f9f9;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ddd;
+        }
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .chat-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+        }
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .message.sent {
+            justify-content: flex-end;
+        }
+        .message .message-bubble {
+            max-width: 60%;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .message.sent .message-bubble {
+            background-color: #007bff;
+            color: #fff;
+            border-bottom-right-radius: 0;
+        }
+        .message.received .message-bubble {
+            background-color: #ececec;
+            color: #333;
+            border-bottom-left-radius: 0;
+        }
+        /* Chat Input Styling */
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>TrendTailor</h2>
+        <div class="search">
+            <input type="text" id="searchUser" placeholder="Search chats..." onkeyup="searchUser()">
+            <ul id="searchResults" class="search-results"></ul>
+        </div>
+        <a href="#" class="active" data-user="Maria Dela Cruz" data-img="dp1.jpg"><img src="dp1.jpg" alt="Maria Dela Cruz"> Maria Dela Cruz</a>
+        <a href="#" data-user="Mario" data-img="dp2.jpg"><img src="dp2.jpg" alt="Mario"> Mario</a>
+        <a href="#" data-user="Pedro" data-img="dp3.jpg"><img src="dp3.jpg" alt="Pedro"> Pedro</a>
+        <a href="#" data-user="John" data-img="dp4.jpg"><img src="dp4.jpg" alt="John"> John</a>
+        <a href="#" data-user="Mary" data-img="dp5.jpg"><img src="dp5.jpg" alt="Mary"> Mary</a>
+        <a href="#" data-user="Rey" data-img="dp6.jpg"><img src="dp6.jpg" alt="Rey"> Rey</a>
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <img src="dp1.jpg" alt="Chat User" id="chatUserImg">
+                <h3 id="chatUserName">Maria Dela Cruz</h3>
+            </div>
+            <span id="chatUserStatus">Active 20m ago</span>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be populated here -->
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Enter your message..." onkeydown="checkEnter(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample Data for Each User's Messages
+        const defaultMessages = {
+            'Maria Dela Cruz': [
+                { type: 'received', text: 'Good morning, Sir.' },
+                { type: 'sent', text: 'I\'d like to inquire about your services.' },
+                { type: 'received', text: 'Sure! How can I help you, Ma\'am/Sir?' }
+            ],
+            'Mario': [
+                { type: 'received', text: 'Hello there!' },
+                { type: 'sent', text: 'Hi Mario!' },
+                { type: 'received', text: 'How can I help?' }
+            ],
+            'Pedro': [
+                { type: 'received', text: 'Can I get more details?' }
+            ],
+            'John': [
+                { type: 'sent', text: 'What are your working hours?' }
+            ],
+            'Mary': [
+                { type: 'received', text: 'I need assistance with my order.' }
+            ],
+            'Rey': [
+                { type: 'received', text: 'When will my order arrive?' }
+            ]
+        };
+
+        // Initialize messages in local storage if not already set
+        if (!localStorage.getItem('chatMessages')) {
+            localStorage.setItem('chatMessages', JSON.stringify(defaultMessages));
+        }
+
+        // Load messages for the active user from local storage
+        function loadMessages(userName) {
+            const messages = JSON.parse(localStorage.getItem('chatMessages'));
+            return messages[userName] || [];
+        }
+
+        // Function to Handle Switching Chat Users
+        function switchUser(userName, userImg) {
+            document.getElementById('chatUserName').textContent = userName;
+            document.getElementById('chatUserImg').src = userImg;
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+
+            const messages = loadMessages(userName);
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', msg.type);
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.classList.add('message-bubble');
+                bubbleDiv.textContent = msg.text;
+                messageDiv.appendChild(bubbleDiv);
+                chatMessages.appendChild(messageDiv);
+            });
+
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+        }
+
+        // Load User Messages from Sidebar
+        document.querySelectorAll('.sidebar a').forEach(userLink => {
+            userLink.addEventListener('click', function () {
+                const userName = this.getAttribute('data-user');
+                const userImg = this.getAttribute('data-img');
+                switchUser(userName, userImg);
+                document.querySelector('.sidebar a.active').classList.remove('active');
+                this.classList.add('active');
+            });
+        });
+
+       // Function to Handle Search User Functionality
+function searchUser() {
+    const input = document.getElementById('searchUser').value.toLowerCase();
+    const userLinks = document.querySelectorAll('.sidebar a');
+    let anyMatchFound = false;
+
+    userLinks.forEach(userLink => {
+        const userName = userLink.getAttribute('data-user').toLowerCase();
+
+        if (userName.includes(input)) {
+            userLink.style.display = 'flex'; // Show matching user
+            anyMatchFound = true;
+        } else {
+            userLink.style.display = 'none'; // Hide non-matching users
+        }
+    });
+
+    // Optional: If no matches, you can display a message
+    const results = document.getElementById('searchResults');
+    if (!anyMatchFound && input.trim() !== '') {
+        results.innerHTML = '<li>No users found.</li>';
+        results.style.display = 'block';
+    } else {
+        results.style.display = 'none';
+    }
+}
+
+        // Function to Send Message
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messageText = input.value;
+            const userName = document.getElementById('chatUserName').textContent;
+
+            if (messageText.trim()) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', 'sent');
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.classList.add('message-bubble');
+                bubbleDiv.textContent = messageText;
+                messageDiv.appendChild(bubbleDiv);
+                chatMessages.appendChild(messageDiv);
+
+                // Save message to local storage
+                const messages = JSON.parse(localStorage.getItem('chatMessages'));
+                messages[userName].push({ type: 'sent', text: messageText });
+                localStorage.setItem('chatMessages', JSON.stringify(messages));
+
+                input.value = ''; // Clear the input
+                chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+            }
+        }
+
+        // Check for Enter Key Press to Send Message
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Load default chat for the first user
+        loadMessages('Maria Dela Cruz');
+        document.querySelector('.sidebar a.active').click(); // Trigger click to load messages
+    </script>
+
+</body>
+</html>
